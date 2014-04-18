@@ -85,7 +85,7 @@ def init_board( file_name ):
     return SudokuBoard(len(board), board)
 
 # consistent Function
-def consistent(assignment, row, col, val):
+def consistent(assignment, row, col, val,size):
     for i in range(len(assignment)):
         if assignment[i][0] == row and assignment[i][2] == val:
             return False
@@ -95,18 +95,20 @@ def consistent(assignment, row, col, val):
         squareRow = row // subsquare
         squareCol = col // subsquare
 
-        assignmentSquareRow = assignemnt[i][0] // subsquare
+        assignmentSquareRow = assignment[i][0] // subsquare
         assignmentSquareCol = assignment[i][1] // subsquare
-        if squareRow == assignmentSquareRow and squareCol == assignmentSquareCol and assignemnt[i][2] == val:
+        if squareRow == assignmentSquareRow and squareCol == assignmentSquareCol and assignment[i][2] == val:
             return False
     return True
 
-# check to see if tuple is consistent with assignment
-
-def select_unassigned_variable(board):
+def select_unassigned_variable(board,assignment):
     for r in range(board.BoardSize):
         for c in range(board.BoardSize):
-            if board.CurrentGameboard[r][c] == 0:
+            assigned = False
+            for i in range(len(assignment)):
+                if assignment[i][0] == r and assignment[i][1] == c:
+                    assigned = True
+            if board.CurrentGameboard[r][c] == 0 and assigned == False:
                 return r, c
 
 def in_domain(row,col,val,board):
@@ -136,45 +138,56 @@ def order_domain_values(row,col,assignment,board):
             domain_values.append(x)
     return domain_values
 
-
-    # numbers = []
-    # for x in range(1,board.BoardSize+1):
-    #     numbers.append(x);
-    # return numbers
-
-
-
-
-
 def backtrack(assignment, board):
-    if iscomplete(assignment):
+    for i in range(len(assignment)):
+        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]
+    if iscomplete(board.CurrentGameboard):
         return assignment
-    row, col = select_unassigned_variable(board)
+    for i in range(len(assignment)):
+        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = 0
+    row, col = select_unassigned_variable(board,assignment)
     for val in order_domain_values(row, col, assignment, board):
-        if consistent(assignment, row, col, val):
-            assignment.append = [row,col,val]
+        if consistent(assignment, row, col, val,board.BoardSize):
+            assignment.append([row,col,val])
             result = backtrack(assignment, board)
             if result != None:
                 return result
         assignment.pop()
     return None
 
+def backtracking_search(csp):
+    return backtrack([],csp)
 
-
-
-
-
-
-
+#
+#
 # Test code to print a board for debugging
 test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-print order_domain_values(0,0,0,tboard)
-print order_domain_values(1,1,0,tboard)
-print order_domain_values(2,0,0,tboard)
-print order_domain_values(3,3,0,tboard)
+print backtracking_search(tboard)
+tboard.print_board()
+
+# Select unassigned variable checks
+# assignment = [[0,0,1],[0,2,3],[0,3,4]]
+# print select_unassigned_variable(tboard,assignment)
+
+#consistent checks
+# print consistent(assignment, 1,1,1,4)
+# print consistent(assignment, 1,1,2,4)
+# print consistent(assignment, 1,1,3,4)
+# print consistent(assignment, 1,1,4,4)
+# print consistent(assignment, 2,0,2,4)
+
+# order_domain_values tests
+#print order_domain_values(3,1,assignment,tboard)
+# print in_domain(1,1,2,tboard)
+# print in_domain(1,1,4,tboard)
+
+# print order_domain_values(0,0,0,tboard)
+# print order_domain_values(1,1,0,tboard)
+# print order_domain_values(2,0,0,tboard)
+# print order_domain_values(3,3,0,tboard)
 
 # consistent test cases for test1.text when line 2 = 3. Tests subsquares
 # print consistent(tboard, 1,0,2)
