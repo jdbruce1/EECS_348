@@ -86,7 +86,21 @@ def init_board( file_name ):
 
 # consistent Function
 def consistent(assignment, row, col, val):
-    return None
+    for i in range(len(assignment)):
+        if assignment[i][0] == row and assignment[i][2] == val:
+            return False
+        if assignment[i][1] == col and assignment[i][2] == val:
+            return False
+        subsquare = int(math.sqrt(size))
+        squareRow = row // subsquare
+        squareCol = col // subsquare
+
+        assignmentSquareRow = assignemnt[i][0] // subsquare
+        assignmentSquareCol = assignment[i][1] // subsquare
+        if squareRow == assignmentSquareRow and squareCol == assignmentSquareCol and assignemnt[i][2] == val:
+            return False
+    return True
+
 # check to see if tuple is consistent with assignment
 
 def select_unassigned_variable(board):
