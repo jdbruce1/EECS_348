@@ -84,28 +84,9 @@ def init_board( file_name ):
     board = parse_file(file_name)
     return SudokuBoard(len(board), board)
 
-# Interference Function
-def interference(board, row, col, val):
-    # row check
-    for r in range(board.BoardSize):
-        if board.CurrentGameboard[r][col] == val:
-            return True
-    # column check
-    for c in range(board.BoardSize):
-        if board.CurrentGameboard[row][c] == val:
-            return True
-
-    # subsquare check
-    subsquare = int(math.sqrt(board.BoardSize))
-    squareRow = row // subsquare
-    squareCol = col // subsquare
-    
-    for r in range(subsquare):
-        for c in range(subsquare):
-            if board.CurrentGameboard[squareRow * subsquare + r][squareCol * subsquare + c] == val:
-                return True
-                
-    return False
+# consistent Function
+def consistent(assignment, row, col, val):
+# check to see if tuple is consistent with assignment
 
 def select_unassigned_variable(board):
     for r in range(board.BoardSize):
@@ -113,32 +94,83 @@ def select_unassigned_variable(board):
             if board.CurrentGameboard[r][c] == 0:
                 return r, c
 
+def in_domain(row,col,val,board):
+    # row check
+    for r in range(board.BoardSize)):
+        if board.CurrentGameboard[r][col] == val:
+            return False
+    # column check
+    for c in range(board.BoardSize)):
+        if board.CurrentGameboard[row][c] == val:
+            return FTrue
+    # subsquare check
+    subsquare = int(math.sqrt(board.BoardSize)))
+    squareRow = row // subsquare
+    squareCol = col // subsquare
+    
+    for r in range(subsquare):
+        for c in range(subsquare):
+            if board.CurrentGameboard[squareRow * subsquare + r][squareCol * subsquare + c] == val:
+                return False
+    return True
+
 def order_domain_values(row,col,assignment,board):
-    numbers = []
-    for x in range(1,board.BoardSize+1):
-        numbers.append(x);
-    return numbers
+    domain_values = []
+    for x in range(1,board.BoardSize):
+        if in_domain(row,col,x,board):
+            domain_values.append(x)
+    return domain_values
+
+
+    # numbers = []
+    # for x in range(1,board.BoardSize+1):
+    #     numbers.append(x);
+    # return numbers
+
+
+
+
+
+def backtrack(assignment, board):
+    if iscomplete(assignment):
+        return assignment
+    row, col = select_unassigned_variable(board)
+    for val in order_domain_values(row, col, assignment, board):
+        if consistent(assignment, row, col, val):
+            assignment.append = [row,col,val]
+            result = backtrack(assignment, board)
+            if result != None:
+                return result
+        assignment.pop()
+    return None
+
+
+
+
+
+
+
 
 # Test code to print a board for debugging
 test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-# Interference test cases for test1.text when line 2 = 3. Tests subsquares
-# print interference(tboard, 1,0,2)
-# print interference(tboard, 0,0,2)
-# print interference(tboard, 1,1,2)
-# print interference(tboard, 3,0,3)
+# consistent test cases for test1.text when line 2 = 3. Tests subsquares
+# print consistent(tboard, 1,0,2)
+# print consistent(tboard, 0,0,2)
+# print consistent(tboard, 1,1,2)
+# print consistent(tboard, 3,0,3)
 
 # order_domain_values test
 # print order_domain_values(0,0,0,tboard)
 
-# interference test cases for test1.txt
-# print interference(tboard, 2, 0, 4)
-# print interference(tboard, 0, 0, 2)
-# print interference(tboard, 0, 1, 2)
-# print interference(tboard, 0, 2, 4)
-# print interference(tboard, 0, 0, 1)
+# consistent test cases for test1.txt
+# print consistent(tboard, 2, 0, 4)
+# print consistent(tboard, 0, 0, 2)
+# print consistent(tboard, 0, 1, 2)
+# print consistent(tboard, 0, 2, 4)
+# print consistent(tboard, 0, 0, 1)
 
 
 
