@@ -100,12 +100,18 @@ def select_unassigned_variable(board):
             if board.CurrentGameboard[r][c] == 0:
                 return r, c
 
+def order_domain_values(row,col,assignment,board):
+    numbers = []
+    for x in range(1,board.BoardSize+1):
+        numbers.append(x);
+    return numbers
+
 # Test code to print a board for debugging
 test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-print select_unassigned_variable(tboard)
+print order_domain_values(0,0,0,tboard)
 # interference test cases for test1.txt
 # print interference(tboard, 2, 0, 4)
 # print interference(tboard, 0, 0, 2)
