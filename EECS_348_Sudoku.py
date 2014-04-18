@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 import struct, string, math
 
+
+
+
+
+
 #this will be the game object your player will manipulate
 class SudokuBoard:
 
@@ -16,6 +21,12 @@ class SudokuBoard:
         self.CurrentGameboard[row][col]=value #add the value to the appropriate position on the board
         return SudokuBoard(self.BoardSize, self.CurrentGameboard) #return a new board of the same size with the value added
     
+    def print_board():
+        for row in size:
+            row_out = ""
+            for col in size:
+                row_out = row_out + self.CurrentGameboard[row][col]
+            print row_out
 
 
 # parse_file
