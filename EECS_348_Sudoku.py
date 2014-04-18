@@ -124,6 +124,12 @@ test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
+# Interference test cases for test1.text when line 2 = 3. Tests subsquares
+# print interference(tboard, 1,0,2)
+# print interference(tboard, 0,0,2)
+# print interference(tboard, 1,1,2)
+# print interference(tboard, 3,0,3)
+
 # order_domain_values test
 # print order_domain_values(0,0,0,tboard)
 
