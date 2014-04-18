@@ -87,17 +87,25 @@ def init_board( file_name ):
 # Interference Function
 def interference(board, row, col, val):
     for r in range(board.BoardSize):
-        if(board.CurrentGameboard[r][col] == val):
+        if board.CurrentGameboard[r][col] == val:
             return True
     for c in range(board.BoardSize):
-        if(board.CurrentGameboard[row][c] == val):
+        if board.CurrentGameboard[row][c] == val:
             return True
     return False
+
+def select_unassigned_variable(board):
+    for r in range(board.BoardSize):
+        for c in range(board.BoardSize):
+            if board.CurrentGameboard[r][c] == 0:
+                return r, c
 
 # Test code to print a board for debugging
 test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
+
+print select_unassigned_variable(tboard)
 # interference test cases for test1.txt
 # print interference(tboard, 2, 0, 4)
 # print interference(tboard, 0, 0, 2)
