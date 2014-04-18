@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 import struct, string, math
 
-
-
-
 #this will be the game object your player will manipulate
 class SudokuBoard:
 
@@ -87,24 +84,29 @@ def init_board( file_name ):
     board = parse_file(file_name)
     return SudokuBoard(len(board), board)
 
+# Interference Function
+def interference(board, row, col, val):
+    for r in range(board.BoardSize):
+        if(board.CurrentGameboard[r][col] == val):
+            return True
+    for c in range(board.BoardSize):
+        if(board.CurrentGameboard[row][c] == val):
+            return True
+    return False
 
 # Test code to print a board for debugging
+test_board = parse_file('test1.txt')
+tboard = SudokuBoard(len(test_board),test_board)
+tboard.print_board()
+# interference test cases for test1.txt
+# print interference(tboard, 2, 0, 4)
+# print interference(tboard, 0, 0, 2)
+# print interference(tboard, 0, 1, 2)
+# print interference(tboard, 0, 2, 4)
+# print interference(tboard, 0, 0, 1)
 
-#test_board = parse_file('test1.txt')
-#tboard = SudokuBoard(len(test_board),test_board)
-#tboard.print_board()
 
-# Interference Function
 
-def interference(board, pos, val):
-    for row in range(board.BoardSize):
-        if(row != pos[0]):
-            if(board.CurrentGameboard[row][pos[1]] == val):
-                return True
-    for col in range(board.BoardSize):
-        if(col != pos[1]):
-            if(board.CurrentGameboard[pos[0]][col] == val):
-                return True
 
 
 
