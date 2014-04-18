@@ -94,6 +94,34 @@ def init_board( file_name ):
 #tboard = SudokuBoard(len(test_board),test_board)
 #tboard.print_board()
 
+# Interference Function
+
+def interference(board, pos, val):
+    for row in range(board.BoardSize):
+        if(row != pos[0]):
+            if(board.CurrentGameboard[row][pos[1]] == val):
+                return True
+    for col in range(board.BoardSize):
+        if(col != pos[1]):
+            if(board.CurrentGameboard[pos[0]][col] == val):
+                return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
