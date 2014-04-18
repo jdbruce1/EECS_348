@@ -4,8 +4,6 @@ import struct, string, math
 
 
 
-
-
 #this will be the game object your player will manipulate
 class SudokuBoard:
 
@@ -21,11 +19,11 @@ class SudokuBoard:
         self.CurrentGameboard[row][col]=value #add the value to the appropriate position on the board
         return SudokuBoard(self.BoardSize, self.CurrentGameboard) #return a new board of the same size with the value added
     
-    def print_board():
-        for row in size:
+    def print_board(self):
+        for row in range(self.BoardSize):
             row_out = ""
-            for col in size:
-                row_out = row_out + self.CurrentGameboard[row][col]
+            for col in range(self.BoardSize):
+                row_out = row_out + str(self.CurrentGameboard[row][col]) + " "
             print row_out
 
 
@@ -88,3 +86,14 @@ def iscomplete( BoardArray ):
 def init_board( file_name ):
     board = parse_file(file_name)
     return SudokuBoard(len(board), board)
+
+
+# Test code to print a board for debugging
+
+#test_board = parse_file('test1.txt')
+#tboard = SudokuBoard(len(test_board),test_board)
+#tboard.print_board()
+
+
+
+
