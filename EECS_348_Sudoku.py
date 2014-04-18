@@ -86,6 +86,7 @@ def init_board( file_name ):
 
 # consistent Function
 def consistent(assignment, row, col, val):
+    return None
 # check to see if tuple is consistent with assignment
 
 def select_unassigned_variable(board):
@@ -96,15 +97,15 @@ def select_unassigned_variable(board):
 
 def in_domain(row,col,val,board):
     # row check
-    for r in range(board.BoardSize)):
+    for r in range(board.BoardSize):
         if board.CurrentGameboard[r][col] == val:
             return False
     # column check
-    for c in range(board.BoardSize)):
+    for c in range(board.BoardSize):
         if board.CurrentGameboard[row][c] == val:
-            return FTrue
+            return False
     # subsquare check
-    subsquare = int(math.sqrt(board.BoardSize)))
+    subsquare = int(math.sqrt(board.BoardSize))
     squareRow = row // subsquare
     squareCol = col // subsquare
     
@@ -116,7 +117,7 @@ def in_domain(row,col,val,board):
 
 def order_domain_values(row,col,assignment,board):
     domain_values = []
-    for x in range(1,board.BoardSize):
+    for x in range(1,board.BoardSize+1):
         if in_domain(row,col,x,board):
             domain_values.append(x)
     return domain_values
@@ -155,6 +156,11 @@ def backtrack(assignment, board):
 test_board = parse_file('test1.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
+
+print order_domain_values(0,0,0,tboard)
+print order_domain_values(1,1,0,tboard)
+print order_domain_values(2,0,0,tboard)
+print order_domain_values(3,3,0,tboard)
 
 # consistent test cases for test1.text when line 2 = 3. Tests subsquares
 # print consistent(tboard, 1,0,2)
