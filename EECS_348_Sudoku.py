@@ -152,7 +152,8 @@ def backtrack(assignment, board):
             result = backtrack(assignment, board)
             if result != None:
                 return result
-        assignment.pop()
+        if not assignment:
+            assignment.pop()
     return None
 
 def backtracking_search(csp):
@@ -161,7 +162,7 @@ def backtracking_search(csp):
 #
 #
 # Test code to print a board for debugging
-test_board = parse_file('test1.txt')
+test_board = parse_file('test2.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
