@@ -152,8 +152,8 @@ def backtrack(assignment, board):
             result = backtrack(assignment, board)
             if result != None:
                 return result
-        if assignment:
-            assignment.pop()
+            if assignment:
+                assignment.pop()
     return None
 
 def backtracking_search(csp):
