@@ -162,7 +162,7 @@ def backtracking_search(csp):
 #
 #
 # Test code to print a board for debugging
-test_board = parse_file('test2.txt')
+test_board = parse_file('test16.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
