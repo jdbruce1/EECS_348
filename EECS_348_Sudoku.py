@@ -102,12 +102,13 @@ def consistent(assignment, row, col, val,size):
     return True
 
 def is_assigned(row,col,board,assignment):
-    assinged = False
     for i in range(len(assignment)):
-        if assignment[i][0] == r and assignment[i][1] == c:
+        if assignment[i][0] == row and assignment[i][1] == col:
             return True
-    if board.CurrentGameboard[r][c] == 0:
+    if board.CurrentGameboard[row][col] == 0:
         return False
+    else:
+        return True
 
 def select_unassigned_variable(board,assignment):
     for r in range(board.BoardSize):
@@ -168,49 +169,50 @@ def string_to_list(r_c_string):
     c = int(r_c_string.split(',')[1][0:-1])
     return [r,c]
 
-def initialize_domains(board):
+def initialize_domains(assignment,board):
     domains = {}
     for r in range(board.BoardSize):
         for c in range(board.BoardSize):
-            domains[str([r,c])] = []
-            for val in range(1,board.BoardSize+1):
-                if in_domain(r,c,val,board):
-                    domains[str([r,c])].append(val)
+            if not is_assigned(r,c,board,assignment):
+                domains[str([r,c])] = []
+                for val in range(1,board.BoardSize+1):
+                    if in_domain(r,c,val,board):
+                        domains[str([r,c])].append(val)
+            else:
+                domains[str([r,c])] = [-1]
     return domains
 
-def forward_check(row,col,val,domains,size):
+def forward_check(row,col,val,domains,board, assignment):
     # updates the domains of each variable and tracks the changes
     # returns false if doing so renders the problem unsolvable, and true otherwise
     changes = []
     # row checking and removal
-    for r in range(size):
-        if domains[str([r,col])].count(val):
+    for r in range(board.BoardSize):
+        if (not is_assigned(r,col,board,assignment)) and domains[str([r,col])].count(val):
             domains[str([r,col])].remove(val)
             if domains[str([r,col])] == []:
                 return domains, changes, False
             changes.append([r,col,val])
     # column checking and removal
-    for c in range(size):
-        if domains[str([row,c])].count(val):
+    for c in range(board.BoardSize):
+        if (not is_assigned(row,c,board,assignment)) and domains[str([row,c])].count(val):
             domains[str([row,c])].remove(val)
             if domains[str([row,c])] == []:
                 return domains, changes, False
             changes.append([row,c,val])
     # subsquare checking and removal
-    subsquare = int(math.sqrt(size))
+    subsquare = int(math.sqrt(board.BoardSize))
     squareRow = row // subsquare
     squareCol = col // subsquare
     
     for r in range(subsquare):
         for c in range(subsquare):
-            if domains[str([squareRow * subsquare + r,squareCol * subsquare + c])].count(val):
+            if (not is_assigned(squareRow * subsquare + r,squareCol * subsquare + c,board,assignment)) and domains[str([squareRow * subsquare + r,squareCol * subsquare + c])].count(val):
                 domains[str([squareRow * subsquare + r,squareCol * subsquare + c])].remove(val)
                 if domains[str([squareRow * subsquare + r,squareCol * subsquare + c])] == []:
                     return domains, changes, False
                 changes.append([squareRow * subsquare + r,squareCol * subsquare + c,val])
     return domains, changes, True
-
-
 
 def backtrack_forward(assignment, board):
     for i in range(len(assignment)):
@@ -223,6 +225,7 @@ def backtrack_forward(assignment, board):
     for val in order_domain_values(row, col, assignment, board):
         if consistent(assignment, row, col, val,board.BoardSize):
             assignment.append([row,col,val])
+            domains, changes, possible = forward_check(row,col,val,domains,board,assignment)
             result = backtrack(assignment, board)
             if result != None:
                 return result
@@ -240,13 +243,13 @@ test_board = parse_file('test4.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-domains = initialize_domains(tboard)
+domains = initialize_domains([],tboard)
 print domains
 print "After changing 0,3 to 1"
-domains,changes, possible = forward_check(0,3,1,domains,tboard.BoardSize)
+domains,changes, possible = forward_check(0,0,1,domains,tboard, [])
 print possible
 print domains
-print domains[str([2,3])]
+print domains[str([0,1])]
 
 
 # Tests functionality of backtracking search
