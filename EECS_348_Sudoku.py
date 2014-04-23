@@ -145,7 +145,7 @@ def order_domain_values(row,col,assignment,board):
 
 def backtrack(assignment, board):
     for i in range(len(assignment)):
-        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]
+        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]    
     if iscomplete(board.CurrentGameboard):
         return assignment
     for i in range(len(assignment)):
@@ -169,11 +169,11 @@ def string_to_list(r_c_string):
     c = int(r_c_string.split(',')[1][0:-1])
     return [r,c]
 
-def initialize_domains(assignment,board):
+def initialize_domains(board):
     domains = {}
     for r in range(board.BoardSize):
         for c in range(board.BoardSize):
-            if not is_assigned(r,c,board,assignment):
+            if not is_assigned(r,c,board,[]):
                 domains[str([r,c])] = []
                 for val in range(1,board.BoardSize+1):
                     if in_domain(r,c,val,board):
@@ -191,6 +191,8 @@ def forward_check(row,col,val,domains,board, assignment):
         if (not is_assigned(r,col,board,assignment)) and domains[str([r,col])].count(val):
             domains[str([r,col])].remove(val)
             if domains[str([r,col])] == []:
+                #print "If you put " + str(val) + " at " + str([row,col]) + " then there are no values left for " + str([r,col])
+                changes.append([r,col,val])
                 return domains, changes, False
             changes.append([r,col,val])
     # column checking and removal
@@ -198,6 +200,8 @@ def forward_check(row,col,val,domains,board, assignment):
         if (not is_assigned(row,c,board,assignment)) and domains[str([row,c])].count(val):
             domains[str([row,c])].remove(val)
             if domains[str([row,c])] == []:
+                #print "If you put " + str(val) + " at " + str([row,col]) + " then there are no values left for " + str([row,c])
+                changes.append([row,c,val])
                 return domains, changes, False
             changes.append([row,c,val])
     # subsquare checking and removal
@@ -210,51 +214,71 @@ def forward_check(row,col,val,domains,board, assignment):
             if (not is_assigned(squareRow * subsquare + r,squareCol * subsquare + c,board,assignment)) and domains[str([squareRow * subsquare + r,squareCol * subsquare + c])].count(val):
                 domains[str([squareRow * subsquare + r,squareCol * subsquare + c])].remove(val)
                 if domains[str([squareRow * subsquare + r,squareCol * subsquare + c])] == []:
+                    #print "If you put " + str(val) + " at " + str([row,col]) + " then there are no values left for " + str([squareRow * subsquare + r,squareCol * subsquare + c])
+                    changes.append([squareRow * subsquare + r,squareCol * subsquare + c,val])
                     return domains, changes, False
                 changes.append([squareRow * subsquare + r,squareCol * subsquare + c,val])
     return domains, changes, True
 
 def reverse_forward(changes,domains):
     for i in changes:
-        domains[str(changes[i][0],changes[i][1])].append(changes[i][2])
+        domains[str([i[0],i[1]])].append(i[2])
     return domains
 
-def backtrack_forward(assignment, board):
+def odv_forward(row,col,domains):
+    return domains[str([row,col])]
+
+def backtrack_forward(assignment, board, domains):
+    # Tests for completion by adding assignments to board, then restores if not
     for i in range(len(assignment)):
         board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]
+    #board.print_board()
     if iscomplete(board.CurrentGameboard):
         return assignment
     for i in range(len(assignment)):
         board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = 0
+    # Selects the variable to try values for
     row, col = select_unassigned_variable(board,assignment)
-    for val in order_domain_values(row, col, assignment, board):
-        if consistent(assignment, row, col, val,board.BoardSize):
+    # Tries each possible value in the variable's domain
+    for val in odv_forward(row,col,domains):
+        if consistent(assignment, row, col, val,board.BoardSize):   # If that value works, adds it to the assignment
             assignment.append([row,col,val])
-            domains, changes, possible = forward_check(row,col,val,domains,board,assignment)
-            result = backtrack(assignment, board)
-            if result != None:
-                return result
-            if assignment:
+            domains, changes, possible = forward_check(row,col,val,domains,board,assignment) # Also, restricts the domain of other variables
+            if possible: # If no conflict is immediately detected, continues to the next variable to be assigned
+                result = backtrack_forward(assignment,board,domains) 
+                if result != None: # If that was successful, return its result
+                    return result
+            if assignment: # Otherwise, remove the assignment and restore the domains
                 assignment.pop()
-    return None
+                domains = reverse_forward(changes,domains)
+    return None # If none of them work, return none
 
 def backtracking_search_forward_checking(csp):
-    return backtrack_forward([],csp)
+    domains = initialize_domains(csp)
+    return backtrack_forward([],csp,domains)
 
 #
 #
 # Test code to print a board for debugging
-test_board = parse_file('test4.txt')
+test_board = parse_file('test25.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-domains = initialize_domains([],tboard)
-print domains
-print "After changing 0,3 to 1"
-domains,changes, possible = forward_check(0,0,1,domains,tboard, [])
-print possible
-print domains
-print domains[str([0,1])]
+print backtracking_search_forward_checking(tboard)
+tboard.print_board()
+
+# Tests functionality of forward_check and reverse_forward
+# domains1 = initialize_domains([],tboard)
+# print domains1
+# print "After changing 0,3 to 1"
+# domains2,changes,possible = forward_check(0,0,1,domains1,tboard, [])
+# print possible
+# print changes
+# print domains2
+# domains3 = reverse_forward(changes,domains2)
+# print domains3
+# if(domains3 == domains1):
+#     print "Changes reversed"
 
 
 # Tests functionality of backtracking search
@@ -297,19 +321,6 @@ print domains[str([0,1])]
 # print consistent(tboard, 0, 1, 2)
 # print consistent(tboard, 0, 2, 4)
 # print consistent(tboard, 0, 0, 1)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
