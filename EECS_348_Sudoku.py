@@ -294,8 +294,6 @@ def select_unassigned_variable_mrv(board,assignment,domains):
         for c in range(board.BoardSize):
             if not is_assigned(r,c,board,assignment):
                 key = str([r, c])
-                #print key
-                #print len(domains[key])
                 if len(domains[key]) <= min_len:
                     min_len = len(domains[key])
                     min_row = r
@@ -309,7 +307,7 @@ def select_unassigned_variable_mrv(board,assignment,domains):
 #
 #
 # Test code to print a board for debugging
-test_board = parse_file('test25.txt')
+test_board = parse_file('test16.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
@@ -370,13 +368,3 @@ tboard.print_board()
 # print consistent(tboard, 0, 1, 2)
 # print consistent(tboard, 0, 2, 4)
 # print consistent(tboard, 0, 0, 1)
-
-
-
-
-
-
-
-
-
-
