@@ -214,6 +214,11 @@ def forward_check(row,col,val,domains,board, assignment):
                 changes.append([squareRow * subsquare + r,squareCol * subsquare + c,val])
     return domains, changes, True
 
+def reverse_forward(changes,domains):
+    for i in changes:
+        domains[str(changes[i][0],changes[i][1])].append(changes[i][2])
+    return domains
+
 def backtrack_forward(assignment, board):
     for i in range(len(assignment)):
         board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]
