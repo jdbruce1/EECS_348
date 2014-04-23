@@ -3,7 +3,6 @@ import struct, string, math
 
 #this will be the game object your player will manipulate
 class SudokuBoard:
-
     #the constructor for the SudokuBoard
     def __init__(self, size, board):
       self.BoardSize = size #the size of the board
@@ -28,7 +27,6 @@ class SudokuBoard:
 #this function will parse a sudoku text file (like those posted on the website)
 #into a BoardSize, and a 2d array [row,col] which holds the value of each cell.
 # array elements witha value of 0 are considered to be empty
-
 def parse_file(filename):
     f = open(filename, 'r')
     BoardSize = int( f.readline())
@@ -84,7 +82,7 @@ def init_board( file_name ):
     board = parse_file(file_name)
     return SudokuBoard(len(board), board)
 
-# consistent Function
+# checks if a value is consistent
 def consistent(assignment, row, col, val,size):
     for i in range(len(assignment)):
         if assignment[i][0] == row and assignment[i][2] == val:
@@ -257,6 +255,57 @@ def backtracking_search_forward_checking(csp):
     domains = initialize_domains(csp)
     return backtrack_forward([],csp,domains)
 
+def backtrack_forward_mrv(assignment, board, domains):
+    # Tests for completion by adding assignments to board, then restores if not
+    #print "-------------------------"
+    for i in range(len(assignment)):
+        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]
+    #board.print_board()
+    if iscomplete(board.CurrentGameboard):
+        return assignment
+    for i in range(len(assignment)):
+        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = 0
+    # Selects the variable to try values for
+    row, col = select_unassigned_variable_mrv(board,assignment, domains)
+    # Tries each possible value in the variable's domain
+    for val in odv_forward(row,col,domains):
+        if consistent(assignment, row, col, val,board.BoardSize):   # If that value works, adds it to the assignment
+            assignment.append([row,col,val])
+            domains, changes, possible = forward_check(row,col,val,domains,board,assignment) # Also, restricts the domain of other variables
+            if possible: # If no conflict is immediately detected, continues to the next variable to be assigned
+                result = backtrack_forward_mrv(assignment,board,domains) 
+                if result != None: # If that was successful, return its result
+                    return result
+            if assignment: # Otherwise, remove the assignment and restore the domains
+                assignment.pop()
+                domains = reverse_forward(changes,domains)
+    return None # If none of them work, return none
+
+def backtracking_search_forward_checking_mrv(csp):
+    domains = initialize_domains(csp)
+    return backtrack_forward_mrv([],csp,domains)
+
+def select_unassigned_variable_mrv(board,assignment,domains):
+    min_row = 0
+    min_col = 0
+    min_len = len(board.CurrentGameboard) + 1
+
+    for r in range(board.BoardSize):
+        for c in range(board.BoardSize):
+            if not is_assigned(r,c,board,assignment):
+                key = str([r, c])
+                #print key
+                #print len(domains[key])
+                if len(domains[key]) <= min_len:
+                    min_len = len(domains[key])
+                    min_row = r
+                    min_col = c
+                    if len(domains[key]) == 1:
+                        return min_row, min_col
+
+    return min_row, min_col
+
+
 #
 #
 # Test code to print a board for debugging
@@ -264,7 +313,7 @@ test_board = parse_file('test25.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-print backtracking_search_forward_checking(tboard)
+backtracking_search_forward_checking_mrv(tboard)
 tboard.print_board()
 
 # Tests functionality of forward_check and reverse_forward
