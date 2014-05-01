@@ -264,8 +264,9 @@ test_board = parse_file('test25.txt')
 tboard = SudokuBoard(len(test_board),test_board)
 tboard.print_board()
 
-print backtracking_search_forward_checking(tboard)
-tboard.print_board()
+# Tests functionality of backtracking search with forward checking
+# print backtracking_search_forward_checking(tboard)
+# tboard.print_board()
 
 # Tests functionality of forward_check and reverse_forward
 # domains1 = initialize_domains([],tboard)
