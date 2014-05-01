@@ -3,7 +3,6 @@ import struct, string, math
 
 #this will be the game object your player will manipulate
 class SudokuBoard:
-
     #the constructor for the SudokuBoard
     def __init__(self, size, board):
       self.BoardSize = size #the size of the board
@@ -28,7 +27,6 @@ class SudokuBoard:
 #this function will parse a sudoku text file (like those posted on the website)
 #into a BoardSize, and a 2d array [row,col] which holds the value of each cell.
 # array elements witha value of 0 are considered to be empty
-
 def parse_file(filename):
     f = open(filename, 'r')
     BoardSize = int( f.readline())
@@ -84,7 +82,7 @@ def init_board( file_name ):
     board = parse_file(file_name)
     return SudokuBoard(len(board), board)
 
-# consistent Function
+# checks if a value is consistent
 def consistent(assignment, row, col, val,size):
     for i in range(len(assignment)):
         if assignment[i][0] == row and assignment[i][2] == val:
@@ -142,27 +140,6 @@ def order_domain_values(row,col,assignment,board):
         if in_domain(row,col,x,board):
             domain_values.append(x)
     return domain_values
-
-def backtrack(assignment, board):
-    for i in range(len(assignment)):
-        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = assignment[i][2]    
-    if iscomplete(board.CurrentGameboard):
-        return assignment
-    for i in range(len(assignment)):
-        board.CurrentGameboard[assignment[i][0]][assignment[i][1]] = 0
-    row, col = select_unassigned_variable(board,assignment)
-    for val in order_domain_values(row, col, assignment, board):
-        if consistent(assignment, row, col, val,board.BoardSize):
-            assignment.append([row,col,val])
-            result = backtrack(assignment, board)
-            if result != None:
-                return result
-            if assignment:
-                assignment.pop()
-    return None
-
-def backtracking_search(csp):
-    return backtrack([],csp)
 
 def string_to_list(r_c_string):
     r = int(r_c_string.split(',')[0][1:])   
@@ -226,6 +203,7 @@ def reverse_forward(changes,domains):
     return domains
 
 def odv_forward(row,col,domains):
+<<<<<<< HEAD
     return domains[str([row,col])]
 
 def backtrack_forward(assignment, board, domains):
@@ -332,3 +310,6 @@ tboard.print_board()
 
 
 
+=======
+    return domains[str([row,col])]
+>>>>>>> FETCH_HEAD

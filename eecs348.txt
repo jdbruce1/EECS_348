@@ -1,0 +1,26 @@
+1
+a. The code is attached in the zip file.
+b. 
+When we programmed this assignment, we traded of writing functions and testing, so one member would write a function and then the other would test it. We then swapped roles. Along the way, we discussed how we would best code each section.
+
+We designed and chose data structures together. We programmed backtracking together as well. Jacob programmed forward checking and Greg programmed the heuristics.
+
+
+
+2. Write-up
+a.	
+The Sudoku board is an object with two fields, the size of the board and a 2D array that represents the values in the board. The 2D array is arranged in row major order, so to retrieve a value, use the row to retrieve the values in that row, and use the column to retrieve the value. 
+
+The variables in this problem are the spaces in the Sudoku board that are initially unassigned. These spaces are indexed by row and column values and if they are currently unassigned, they are marked with a 0.
+
+The constraints are alldiff constraints on each row, column, and subsquare.
+
+Each state is an assignment of values to variables.
+
+b.
+Before implementing forward checking, we created a dictionary that stored the row, column, and domains for each variable. The row and column act as our key, and an array of consistent domains are our values. The forward checking function checks a variable (indexed by row and column) to see if the value being assigned will causes inconsistencies in constrained variables, variables in the same row, column, and subsquare. Our code accomplishes this by taking the row, column, and value to assign as well as a board and list of already assigned values. Before checking constrains in the rows, columns, and subsquares, we initialize an empty list of changes. This list of changes consists of tuples containing the row, column, and value removed from the domain. The code for removing values in the domain of variables in the same row or column is very similar. We loop through every element in that row/column and if the value we are assigning is in the domain, then we remove it from the domain of that variable. This is very easy because we have a dictionary for each domain value, so retrieval is fast. If at any point, removing a value from the domain results in an empty list, we return the domains, changes, and false, indicating the assignment resulted in an inconsistency. Next, we check each subsquare, and remove domain values. Similarly to the row and column check, if a value removal results in an empty list we break, and return the domains, changes, and false. If it returns false, we simply loop through the list of changes and undo our domain changes.
+
+c.
+
+d. 
+The algorithms tend to make fewer variable assignments for every added heuristic. So backtracking makes the most variable assignments and mrv+mcv+lcv tends to make the fewest assignments.
