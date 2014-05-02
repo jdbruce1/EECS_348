@@ -84,22 +84,27 @@ def result(board, action, cpuval):
     new_board = TicTacToeBoard()
     for i in range(3):
         for j in range(3):
-<<<<<<< HEAD
-            new_board.board[i][j] = board.get_square(i, j)
-    board.play_square(action["row"], action["col"])
-=======
             new_board.play_square(i, j, board.get_square(i, j))
-    new_board.play_square(action["row"], action["col"], cpuval)
->>>>>>> FETCH_HEAD
+            new_board.play_square(action["row"], action["col"], cpuval)
     return new_board
 
+def max_value(board,cpuval):
+    if(terminal_test(board)):
+        return utility(board,cpuval)
+    v = -2
+    for each a in actions(board):
+        v = max(v,min_value(result(board,a)))
+    return v
+
+def min_value(board,cpuval):
+    if(terminal_test(baord)):
+        return utility(board,cpuval)
+    v = 2
+    for each a in actions(board):
+        v = min(v,max_value(result(board,a)))
+    return v
 
 # def minimax_decision(board, cpuval):
-
-# def max_value(board, assignments)
-
-
-
 
 def play():
     Board = TicTacToeBoard()
@@ -140,28 +145,11 @@ def main():
     cpuval = 'O'
     Board.PrintBoard()
     print "-------"
-<<<<<<< HEAD
-
-    options = actions(Board)
-    print options[0]
-    New_Board = result(Board,options[0])
-
-
-    print "New board is:"
-    New_Board.PrintBoard()
-
-    print "Old board was:"
-    Board.PrintBoard()
-
-
-    # Code to test basic functions
-=======
     new_board = result(Board, {"row":0, "col": 2}, 'O')
     print "old board"
     Board.PrintBoard()
     print "new board"
     new_board.PrintBoard()
->>>>>>> FETCH_HEAD
     # Board.play_square(0, 0, 'X')
     # Board.play_square(1, 0, 'O')
     # Board.play_square(2, 0, 'X')
