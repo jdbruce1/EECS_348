@@ -80,12 +80,12 @@ def terminal_test(board):
             return False
         return True
 
-def result(board, action):
+def result(board, action, cpuval):
     new_board = TicTacToeBoard()
     for i in range(3):
         for j in range(3):
-            new_board[i][j] = board[i][j]
-    board.play_square(action["row"], action["col"])
+            new_board.play_square(i, j, board.get_square(i, j))
+    new_board.play_square(action["row"], action["col"], cpuval)
     return new_board
 
 
@@ -135,16 +135,21 @@ def main():
     cpuval = 'O'
     Board.PrintBoard()
     print "-------"
-    Board.play_square(0, 0, 'X')
-    Board.play_square(1, 0, 'O')
-    Board.play_square(2, 0, 'X')
-    Board.play_square(0, 1, 'O')
-    Board.play_square(1, 1, 'X')
-    Board.play_square(2, 1, 'O')
-    Board.play_square(0, 2, 'X')
-    Board.play_square(1, 2, 'X')
-    Board.play_square(2, 2, 'O')
+    new_board = result(Board, {"row":0, "col": 2}, 'O')
+    print "old board"
     Board.PrintBoard()
+    print "new board"
+    new_board.PrintBoard()
+    # Board.play_square(0, 0, 'X')
+    # Board.play_square(1, 0, 'O')
+    # Board.play_square(2, 0, 'X')
+    # Board.play_square(0, 1, 'O')
+    # Board.play_square(1, 1, 'X')
+    # Board.play_square(2, 1, 'O')
+    # Board.play_square(0, 2, 'X')
+    # Board.play_square(1, 2, 'X')
+    # Board.play_square(2, 2, 'O')
+    # Board.PrintBoard()
     # print actions(Board)
     # print utility(Board, 'O')
     print terminal_test(Board)
