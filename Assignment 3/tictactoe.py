@@ -63,11 +63,23 @@ def actions(board):
 def utility(board, cpuval):
     winner = board.winner()
     if winner == 'N':
+        if not board.full_board():
+            print "Utility function called on an unfilled board."
         return 0
     elif winner == cpuval:
         return 1
     else:
         return -1
+
+def terminal_test(board):
+    if board.full_board():
+        return True
+    else:
+        w = board.winner
+        if w == 'N':
+            return False
+        return True
+
 
 # def minimax_decision(board, cpuval):
 
@@ -114,12 +126,15 @@ def main():
     humanval = 'X'
     cpuval = 'O'
     Board.PrintBoard()
-
-    Board.play_square(0, 0, 'X')
+    print "-------"
+    #Board.play_square(0, 0, 'O')
+    Board.play_square(0, 1, 'X')
+    Board.play_square(0, 2, 'X')
     Board.play_square(1, 1, 'O')
     Board.play_square(2, 2, 'O')
     Board.PrintBoard()
     print actions(Board)
+    print utility(Board, 'O')
     # play()
 
 
