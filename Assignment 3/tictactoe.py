@@ -88,23 +88,39 @@ def result(board, action, cpuval):
             new_board.play_square(action["row"], action["col"], cpuval)
     return new_board
 
-def max_value(board,cpuval):
+def max_value(board,cpuval, playerval):
     if(terminal_test(board)):
         return utility(board,cpuval)
     v = -2
-    for each a in actions(board):
-        v = max(v,min_value(result(board,a)))
+    for a in actions(board):
+        v = max(v,min_value(result(board,a,cpuval),cpuval, playerval))
     return v
 
-def min_value(board,cpuval):
-    if(terminal_test(baord)):
+def min_value(board,cpuval, playerval):
+    # print "-------"
+    # board.PrintBoard()
+    if(terminal_test(board)):
+        # print "This is a terminus"
         return utility(board,cpuval)
     v = 2
-    for each a in actions(board):
-        v = min(v,max_value(result(board,a)))
+    for a in actions(board):
+        v = min(v,max_value(result(board,a,playerval),cpuval, playerval))
     return v
 
-# def minimax_decision(board, cpuval):
+def minimax_decision(board, cpuval, playerval):
+    best_action = None
+    best_value = -2
+    list_of_actions = actions(board)
+
+    if not list_of_actions:
+        return False
+    for action in list_of_actions:
+        value = min_value(result(board, action, cpuval), cpuval, playerval)
+        if best_value < value:
+            best_action = action
+            best_value = value
+    board.play_square(best_action["row"], best_action["col"], cpuval)
+    return True
 
 def play():
     Board = TicTacToeBoard()
@@ -128,7 +144,7 @@ def play():
             else:
                 Board.PrintBoard()
                 print("CPU Move")
-                make_simple_cpu_move(Board,cpuval)
+                minimax_decision(Board,cpuval, humanval)
                 Board.PrintBoard()
 
     Board.PrintBoard()
@@ -140,30 +156,33 @@ def play():
         print("CPU Wins!")
 
 def main():
-    Board = TicTacToeBoard()
+    board = TicTacToeBoard()
     humanval = 'X'
     cpuval = 'O'
-    Board.PrintBoard()
-    print "-------"
-    new_board = result(Board, {"row":0, "col": 2}, 'O')
-    print "old board"
-    Board.PrintBoard()
-    print "new board"
-    new_board.PrintBoard()
-    # Board.play_square(0, 0, 'X')
-    # Board.play_square(1, 0, 'O')
-    # Board.play_square(2, 0, 'X')
-    # Board.play_square(0, 1, 'O')
-    # Board.play_square(1, 1, 'X')
-    # Board.play_square(2, 1, 'O')
-    # Board.play_square(0, 2, 'X')
-    # Board.play_square(1, 2, 'X')
-    # Board.play_square(2, 2, 'O')
-    # Board.PrintBoard()
-    # print actions(Board)
-    # print utility(Board, 'O')
-    # print terminal_test(Board)
-    # play()
+    # board.PrintBoard()
+    # # print "-------"
+    # # new_board = result(board, {"row":0, "col": 2}, 'O')
+    # # print "old board"
+    # # board.Printboard()
+    # # print "new board"
+    # # new_board.Printboard()
+
+    # board.play_square(0, 0, 'X')
+    # board.play_square(1, 0, 'O')
+    # board.play_square(0, 1, 'X')
+    # board.play_square(2, 1, 'O')
+    # board.play_square(0, 2, 'O')
+    # board.play_square(1, 2, 'X')
+    # board.play_square(2, 2, 'O')
+    # board.PrintBoard()
+    # minimax_decision(board, 'O', 'X')
+    # board.PrintBoard()
+    # print max_value(board, 'O')
+    # board.Printboard()
+    # print actions(board)
+    # print utility(board, 'O')
+    # print terminal_test(board)
+    play()
 
 
 
