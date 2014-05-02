@@ -52,6 +52,21 @@ def make_simple_cpu_move(board, cpuval):
                 return True
     return False
 
+def actions(board):
+    moves = []
+    for i in range(3):
+        for j in range(3):
+            moves.append({"row":i,"col":j})
+    return moves
+
+
+def minimax_decision(board, cpuval):
+
+
+
+
+
+
 def play():
     Board = TicTacToeBoard()
     humanval =  'X'
@@ -89,3 +104,8 @@ def main():
     play()
 
 main()
+
+
+
+
+
