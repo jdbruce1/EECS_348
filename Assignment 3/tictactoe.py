@@ -60,6 +60,14 @@ def actions(board):
                 moves.append({"row":i,"col":j})
     return moves
 
+def utility(board, cpuval):
+    winner = board.winner()
+    if winner == 'N':
+        return 0
+    elif winner == cpuval:
+        return 1
+    else:
+        return -1
 
 # def minimax_decision(board, cpuval):
 
