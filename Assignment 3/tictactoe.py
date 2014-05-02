@@ -56,11 +56,12 @@ def actions(board):
     moves = []
     for i in range(3):
         for j in range(3):
-            moves.append({"row":i,"col":j})
+            if board.get_square(i, j) == 'N':
+                moves.append({"row":i,"col":j})
     return moves
 
 
-def minimax_decision(board, cpuval):
+# def minimax_decision(board, cpuval):
 
 
 
@@ -101,7 +102,19 @@ def play():
         print("CPU Wins!")
 
 def main():
-    play()
+    Board = TicTacToeBoard()
+    humanval = 'X'
+    cpuval = 'O'
+    Board.PrintBoard()
+
+    Board.play_square(0, 0, 'X')
+    Board.play_square(1, 1, 'O')
+    Board.play_square(2, 2, 'O')
+    Board.PrintBoard()
+    print actions(Board)
+    # play()
+
+
 
 main()
 
