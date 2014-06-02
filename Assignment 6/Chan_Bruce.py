@@ -10,6 +10,7 @@ class Chan_Bruce:
 		self.board[4][3] = 'B'
 		# a list of unit vectors (row, col)
 		self.directions = [ (-1,-1), (-1,0), (-1,1), (0,-1),(0,1),(1,-1),(1,0),(1,1)]
+		self.played = [[3,4],[3,3],[4,4],[4,3]]
 
 #prints the boards
 	def PrintBoard(self):
@@ -96,12 +97,48 @@ class Chan_Bruce:
 
 #Places piece of opponent's color at (row,col) and then returns 
 #  the best move, determined by the make_move(...) function
+	
+# Don't think we need the utility function
+
+	# def utility(self, player):
+	# 	player_count = 0
+	# 	opponent_count = 0
+	# 	for r in range(self.size):
+	# 		for c in range(self.size):
+	# 			if(player = self.board[r][c]):
+	# 				player_count = player_count + 1
+	# 			else:
+	# 				opponent_count = opponent_count + 1
+	# 	if(player_count = opponent_count):
+	# 		return 0
+	# 	if(player_count > opponent_count):
+	# 		return 1
+	# 	if(player_count < opponent_count):
+	# 		return -1
+
+
+	def evaluation(self,playerColor,oppColor):
+		player_count = 0
+		opponent_count = 0
+		for r in range(self.size):
+			for c in range(self.size):
+				val = self.board[r][c]
+				if(val == playerColor):
+					player_count = player_count + 1
+				else:
+					if(val == oppColor):
+						opponent_count = opponent_count + 1
+		return player_count - opponent_count
+
+
 	def play_square(self, row, col, playerColor, oppColor):		
 		# Place a piece of the opponent's color at (row,col)
 		if (row,col) != (-1,-1):
 			self.place_piece(row,col,oppColor,playerColor)
 		
 		# Determine best move and and return value to Matchmaker
+		print ("Evaluation function for " + playerColor + " is " + str(self.evaluation(playerColor,oppColor)))
+
 		return self.make_move(playerColor, oppColor)
 
 #sets all tiles along a given direction (Dir) from a given starting point (col and row) for a given distance
@@ -142,4 +179,13 @@ class Chan_Bruce:
 									break
 					return (row,col)
 		return (-1,-1)
+
+ 
+
+
+
+
+
+
+
 
