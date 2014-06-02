@@ -135,9 +135,11 @@ class Chan_Bruce:
 		# Place a piece of the opponent's color at (row,col)
 		if (row,col) != (-1,-1):
 			self.place_piece(row,col,oppColor,playerColor)
+			self.played.append([row,col])
 		
 		# Determine best move and and return value to Matchmaker
 		print ("Evaluation function for " + playerColor + " is " + str(self.evaluation(playerColor,oppColor)))
+		print ("Played pieces are " + str(self.played))
 
 		return self.make_move(playerColor, oppColor)
 
@@ -177,6 +179,7 @@ class Chan_Bruce:
 									legal = True
 									self.flip_tiles(row, col, Dir, i, playerColor)
 									break
+					self.played.append([row,col])
 					return (row,col)
 		return (-1,-1)
 
