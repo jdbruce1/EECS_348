@@ -142,3 +142,4 @@ class Chan_Bruce:
 									break
 					return (row,col)
 		return (-1,-1)
+
