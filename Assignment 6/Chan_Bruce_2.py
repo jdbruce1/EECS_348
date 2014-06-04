@@ -1,6 +1,6 @@
 import copy
 
-class Chan_Bruce:
+class Chan_Bruce_2:
 
 	def __init__(self):
 		self.board = [[' ']*8 for i in range(8)]
@@ -126,27 +126,19 @@ class Chan_Bruce:
 	# 	if(player_count < opponent_count):
 	# 		return -1
 
-	def increment(self,player_count,playerColor,oppColor,r,c,amt):
-		val = self.board[r][c]
-		if(val == playerColor):
-			player_count = player_count + amt
-		else:
-			if(val == oppColor):
-				player_count = player_count - amt
-		return player_count
 
 	def evaluation(self,playerColor,oppColor):
 		player_count = 0
+		opponent_count = 0
 		for r in range(self.size):
 			for c in range(self.size):
-				if(r == 0 or r == 7 or c == 0 or c ==7):
-					if((r == 0 and c == 0) or (r == 0 and c == 7) or (r == 7 and c == 0) or (r == 7 and c ==7)):
-						player_count = self.increment(player_count,playerColor,oppColor,r,c,5)		# Corner = 5
-					else:
-						player_count = self.increment(player_count,playerColor,oppColor,r,c,5)
+				val = self.board[r][c]
+				if(val == playerColor):
+					player_count = player_count + 1
 				else:
-					player_count = self.increment(player_count,playerColor,oppColor,r,c,1)
-		return player_count
+					if(val == oppColor):
+						opponent_count = opponent_count + 1
+		return player_count - opponent_count
 
 	def cutoff_test(self,depth):
 		if depth >= self.depth_limit:
@@ -234,7 +226,7 @@ class Chan_Bruce:
 		if(self.cutoff_test(depth)):
 			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
-		v = -1000
+		v = -100
 		for a in self.actions(playerColor,oppColor):
 			self.save()
 			# print("Saved board is: ")
@@ -260,7 +252,7 @@ class Chan_Bruce:
 		if(self.cutoff_test(depth)):
 			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
-		v = 1000
+		v = 100
 		for a in self.actions(oppColor,playerColor):
 			self.save()
 			# print("Saved board is: ")
@@ -284,18 +276,18 @@ class Chan_Bruce:
 
 	def make_move(self,playerColor,oppColor):
 		best_action = None
-		best_value = -1000
+		best_value = -100
 		list_of_actions = self.actions(playerColor,oppColor)
 		if not list_of_actions:
 			return (-1,-1)
-		v = self.max_value(playerColor,oppColor,-1000,1000,0)
+		v = self.max_value(playerColor,oppColor,-100,100,0)
 		# print("Optimal value of " + str(v)+ " decided on.")
 		self.PrintBoard()
 		for action in list_of_actions:
 			# print("Seeing if " + str(action) + " matches the value of " + str(v))
 			self.save()
 			self.result(action,playerColor,oppColor)
-			value = self.min_value(playerColor,oppColor,-1000,1000,1)
+			value = self.min_value(playerColor,oppColor,-100,100,1)
 			self.restore()
 			if value == v:
 				# print("The action " + str(action) + " matches the value of " + str(v) + " so that's what we'll play")
