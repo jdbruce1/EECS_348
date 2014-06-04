@@ -4,10 +4,12 @@ class Chan_Bruce:
 	def __init__(self):
 		self.board = [[' ']*8 for i in range(8)]
 		self.size = 8
+		self.occuipied = []
 		self.board[4][4] = 'W'
 		self.board[3][4] = 'B'
 		self.board[3][3] = 'W'
 		self.board[4][3] = 'B'
+		self.occuipied.extend(([4, 4], [3, 4], [3, 3], [4, 3]))
 		# a list of unit vectors (row, col)
 		self.directions = [ (-1,-1), (-1,0), (-1,1), (0,-1),(0,1),(1,-1),(1,0),(1,1)]
 
@@ -142,4 +144,21 @@ class Chan_Bruce:
 									break
 					return (row,col)
 		return (-1,-1)
+			
+	def actions(self, player, opp):
+		actions = []
+		for square in self.occuipied:
+			print(square)
+			row = square[0]
+			col = square[1]
 
+			for c in range(col - 1, col + 2):
+				for r in range(row - 1, row + 2):
+					if r >= 0 and c >= 0 and r < self.size and c < self.size:
+						if self.board[r][c] == " " and self.islegal(row,col,player, opp):
+							adjacentSquares.append([r, c])
+
+		return actions
+
+cb = Chan_Bruce()
+print(str(cb.actions('B', 'W')))

@@ -203,7 +203,6 @@ def reverse_forward(changes,domains):
     return domains
 
 def odv_forward(row,col,domains):
-<<<<<<< HEAD
     return domains[str([row,col])]
 
 def backtrack_forward(assignment, board, domains):
@@ -300,16 +299,3 @@ tboard.print_board()
 # print consistent(tboard, 0, 1, 2)
 # print consistent(tboard, 0, 2, 4)
 # print consistent(tboard, 0, 0, 1)
-
-
-
-
-
-
-
-
-
-
-=======
-    return domains[str([row,col])]
->>>>>>> FETCH_HEAD
