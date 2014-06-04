@@ -1,3 +1,4 @@
+import copy
 
 class Chan_Bruce:
 
@@ -13,8 +14,9 @@ class Chan_Bruce:
 		# a list of unit vectors (row, col)
 		self.directions = [ (-1,-1), (-1,0), (-1,1), (0,-1),(0,1),(1,-1),(1,0),(1,1)]
 		self.played = [[3,4],[3,3],[4,4],[4,3]]
-		self.depth_limit = 10
+		self.depth_limit = 2
 		self.num_open = 60
+		self.saved = []
 
 #prints the boards
 	def PrintBoard(self):
@@ -142,7 +144,7 @@ class Chan_Bruce:
 		if depth >= self.depth_limit:
 			return True
 		else:
-			if num_open == 0:
+			if self.num_open == 0:
 				return True
 		return False
 
@@ -153,9 +155,9 @@ class Chan_Bruce:
 			self.place_piece(row,col,oppColor,playerColor)
 		
 		# Determine best move and and return value to Matchmaker
-		print ("Evaluation function for " + playerColor + " is " + str(self.evaluation(playerColor,oppColor)))
-		print ("Played pieces are " + str(self.played))
-		print ("Number of squares left is " + str(self.num_open))
+		# print("Evaluation function for " + playerColor + " is " + str(self.evaluation(playerColor,oppColor)))
+		# print("Played pieces are " + str(self.played))
+		# print("Number of squares left is " + str(self.num_open))
 		return self.make_move(playerColor, oppColor)
 
 #sets all tiles along a given direction (Dir) from a given starting point (col and row) for a given distance
@@ -167,97 +169,170 @@ class Chan_Bruce:
 		return True
 	
 #returns the value of a square on the board
+	
+
+	def actions(self, playerColor, oppColor):
+		actions = []
+		for row in range(self.size):
+			for col in range(self.size):
+				if self.islegal(row,col,playerColor,oppColor):
+					actions.append([row,col])
+		return actions
+
+		# Simple actions function. Greg was working on a more complicated one:
+		# def actions(self, player, opp):
+		# 	actions = []
+		# 	for square in self.occuipied:
+		# 		print(square)
+		# 		row = square[0]
+		# 		col = square[1]
+
+		# 		for c in range(col - 1, col + 2):
+		# 			for r in range(row - 1, row + 2):
+		# 				if r >= 0 and c >= 0 and r < self.size and c < self.size:
+		# 					if self.board[r][c] == " " and self.islegal(row,col,player, opp):
+		# 						adjacentSquares.append([r, c])
+
+		# 	return actions
+
+
+
 	def get_square(self, row, col):
 		return self.board[row][col]
 
 
 	def save(self):
-		saved_val = self.deepcopy()
+		saved_val = copy.deepcopy(self)
 		# Deep copies to have something to revert to
-		return saved_val
+		self.saved.append(saved_val)
 
-	def restore(self,saved):
-		self = saved
+	def restore(self):
+		saved_val = self.saved.pop()
+		# print("This is the board that will be restored")
+		# saved_val.PrintBoard()
+		self.board = saved_val.board
+		# print("Right after restoration")
+		# self.PrintBoard()
 
 		# Restores board to the saved value
 
 	def result(self,action, playerColor,oppColor):
-		self.place_piece(action[1],action[2],playerColor,oppColor)
+		self.place_piece(action[0],action[1],playerColor,oppColor)
 
 
 
-	def max_value(this,playerColor,oppColor):
+	def max_value(self,playerColor,oppColor,alpha,beta,depth):
+		# print("Entering max_value")
 		if(self.cutoff_test(depth)):
+			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
 		v = -100
-		saved = self.save()
-		for a in self.actions(playerColor,oppColor):		# Watch syntax here
-			result(a,playerColor,oppColor)
-			v = max(v,this.min_value(playerColor,oppColor))
-			self.restore(saved)
+		for a in self.actions(playerColor,oppColor):
+			self.save()
+			# print("Saved board is: ")
+			# self.saved[len(self.saved) - 1].PrintBoard()
+			# print("Setting the result of " + str(a) + " for player " + playerColor)
+			self.result(a,playerColor,oppColor)
+			# self.PrintBoard()
+			# print("Recursively calling min_value")
+			v = max(v,self.min_value(playerColor,oppColor,alpha, beta, depth+1))
+			# self.PrintBoard()
+			# print("Restoring board")
+			self.restore()
+			# self.PrintBoard()
+			if v >= beta:
+				# print("v = " + str(v) + " which is greater than or equal to beta (" + str(beta) + "). This is getting pruned.")
+				return v
+			alpha = max(alpha,v)
+		# print("Returning from max_value to caller with v = " + str(v))
 		return v
 
-	def min_value(this,playerColor,oppColor):
+	def min_value(self,playerColor,oppColor,alpha,beta,depth):
+		# print("Entering min_value")
 		if(self.cutoff_test(depth)):
+			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
 		v = 100
-		saved = self.save()
 		for a in self.actions(oppColor,playerColor):
-			result(a,oppColor,playerColor)
-			v = min(v,max_value(oppColor,playerColor))
-			self.restore(saved)
+			self.save()
+			# print("Saved board is: ")
+			# self.saved[len(self.saved) - 1].PrintBoard()
+			# print("Setting the result of " + str(a) + " for player " + oppColor)
+			self.result(a,oppColor,playerColor)
+			# self.PrintBoard()
+			# print("Recursively calling max_value")
+			v = min(v,self.max_value(playerColor,oppColor,alpha,beta, depth+1))
+			# self.PrintBoard()
+			# print("Restoring board")
+			self.restore()
+			# self.PrintBoard()
+			if v <= alpha:
+				# print("v = " + str(v) + " which is less than or equal to beta (" + str(alpha) + "). This is getting pruned.")
+				return v
+			beta = min(beta,v)
+		# print("Returning from min_value to caller with v = " + str(v))
 		return v
 
 
-	def minimax_decision(this,playerColor,oppColor):
-		# I think this will be different
-
-
+	def make_move(self,playerColor,oppColor):
+		best_action = None
+		best_value = -100
+		list_of_actions = self.actions(playerColor,oppColor)
+		if not list_of_actions:
+			return (-1,-1)
+		v = self.max_value(playerColor,oppColor,-100,100,0)
+		# print("Optimal value of " + str(v)+ " decided on.")
+		self.PrintBoard()
+		for action in list_of_actions:
+			# print("Seeing if " + str(action) + " matches the value of " + str(v))
+			self.save()
+			self.result(action,playerColor,oppColor)
+			value = self.min_value(playerColor,oppColor,-100,100,1)
+			self.restore()
+			if value == v:
+				# print("The action " + str(action) + " matches the value of " + str(v) + " so that's what we'll play")
+				self.place_piece(action[0],action[1],playerColor,oppColor)
+				return (action[0],action[1])
 
 #Search the game board for a legal move, and play the first one it finds
-	def make_move(self, playerColor, oppColor):
-		for row in range(self.size):
-			for col in range(self.size):
-				if(self.islegal(row,col,playerColor, oppColor)):
-					for Dir in self.directions:
-						#look across the length of the board to see if the neighboring squares are empty,
-						#held by the player, or held by the opponent
-						for i in range(self.size):
-							if  ((( row + i*Dir[0])<self.size)  and (( row + i*Dir[0])>=0 ) and (( col + i*Dir[1])>=0 ) and (( col + i*Dir[1])<self.size )):
-								#does the adjacent square in direction dir belong to the opponent?
-								if self.get_square(row+ i*Dir[0], col + i*Dir[1])!= oppColor and i==1 : # no
-									#no pieces will be flipped in this direction, so skip it
-									break
-								#yes the adjacent piece belonged to the opponent, now lets see if there are a chain
-								#of opponent pieces
-								if self.get_square(row+ i*Dir[0], col + i*Dir[1])==" " and i!=0 :
-									break
+	# def make_move(self, playerColor, oppColor):
+	# 	for row in range(self.size):
+	# 		for col in range(self.size):
+	# 			if(self.islegal(row,col,playerColor, oppColor)):
+	# 				for Dir in self.directions:
+	# 					#look across the length of the board to see if the neighboring squares are empty,
+	# 					#held by the player, or held by the opponent
+	# 					for i in range(self.size):
+	# 						if  ((( row + i*Dir[0])<self.size)  and (( row + i*Dir[0])>=0 ) and (( col + i*Dir[1])>=0 ) and (( col + i*Dir[1])<self.size )):
+	# 							#does the adjacent square in direction dir belong to the opponent?
+	# 							if self.get_square(row+ i*Dir[0], col + i*Dir[1])!= oppColor and i==1 : # no
+	# 								#no pieces will be flipped in this direction, so skip it
+	# 								break
+	# 							#yes the adjacent piece belonged to the opponent, now lets see if there are a chain
+	# 							#of opponent pieces
+	# 							if self.get_square(row+ i*Dir[0], col + i*Dir[1])==" " and i!=0 :
+	# 								break
 
-								#with one of player's pieces at the other end
-								if self.get_square(row+ i*Dir[0], col + i*Dir[1])==playerColor and i!=0 and i!=1 :
-									#set a flag so we know that the move was legal
-									legal = True
-									self.flip_tiles(row, col, Dir, i, playerColor)
-									break
-					self.played.append([row,col])
-					self.num_open = self.num_open - 1				
-					return (row,col)
-		return (-1,-1)
+	# 							#with one of player's pieces at the other end
+	# 							if self.get_square(row+ i*Dir[0], col + i*Dir[1])==playerColor and i!=0 and i!=1 :
+	# 								#set a flag so we know that the move was legal
+	# 								legal = True
+	# 								self.flip_tiles(row, col, Dir, i, playerColor)
+	# 								break
+	# 				self.played.append([row,col])
+	# 				self.num_open = self.num_open - 1				
+	# 				return (row,col)
+	# 	return (-1,-1)
 			
-	def actions(self, player, opp):
-		actions = []
-		for square in self.occuipied:
-			print(square)
-			row = square[0]
-			col = square[1]
 
-			for c in range(col - 1, col + 2):
-				for r in range(row - 1, row + 2):
-					if r >= 0 and c >= 0 and r < self.size and c < self.size:
-						if self.board[r][c] == " " and self.islegal(row,col,player, opp):
-							adjacentSquares.append([r, c])
 
-		return actions
+# cb = Chan_Bruce()
 
-cb = Chan_Bruce()
-print(str(cb.actions('B', 'W')))
+# print(cb.minimax_decision('B','W'))
+# cb.PrintBoard()
+
+
+
+
+
+
