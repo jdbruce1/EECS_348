@@ -12,6 +12,9 @@ class Chan_Bruce:
 		self.occuipied.extend(([4, 4], [3, 4], [3, 3], [4, 3]))
 		# a list of unit vectors (row, col)
 		self.directions = [ (-1,-1), (-1,0), (-1,1), (0,-1),(0,1),(1,-1),(1,0),(1,1)]
+		self.played = [[3,4],[3,3],[4,4],[4,3]]
+		self.depth_limit = 10
+		self.num_open = 60
 
 #prints the boards
 	def PrintBoard(self):
@@ -63,6 +66,10 @@ class Chan_Bruce:
 		if(self.get_square(row,col)!=" "):
 			return False
 		
+		self.num_open = self.num_open - 1;
+		self.played.append([row,col])
+
+
 		if(player == opp):
 			print("player and opponent cannot be the same")
 			return False
@@ -98,17 +105,63 @@ class Chan_Bruce:
 
 #Places piece of opponent's color at (row,col) and then returns 
 #  the best move, determined by the make_move(...) function
+	
+# Don't think we need the utility function
+
+	# def utility(self, player):
+	# 	player_count = 0
+	# 	opponent_count = 0
+	# 	for r in range(self.size):
+	# 		for c in range(self.size):
+	# 			if(player = self.board[r][c]):
+	# 				player_count = player_count + 1
+	# 			else:
+	# 				opponent_count = opponent_count + 1
+	# 	if(player_count = opponent_count):
+	# 		return 0
+	# 	if(player_count > opponent_count):
+	# 		return 1
+	# 	if(player_count < opponent_count):
+	# 		return -1
+
+
+	def evaluation(self,playerColor,oppColor):
+		player_count = 0
+		opponent_count = 0
+		for r in range(self.size):
+			for c in range(self.size):
+				val = self.board[r][c]
+				if(val == playerColor):
+					player_count = player_count + 1
+				else:
+					if(val == oppColor):
+						opponent_count = opponent_count + 1
+		return player_count - opponent_count
+
+	def cutoff_test(self,depth):
+		if depth >= self.depth_limit:
+			return True
+		else:
+			if num_open == 0:
+				return True
+		return False
+
+
 	def play_square(self, row, col, playerColor, oppColor):		
 		# Place a piece of the opponent's color at (row,col)
 		if (row,col) != (-1,-1):
 			self.place_piece(row,col,oppColor,playerColor)
 		
 		# Determine best move and and return value to Matchmaker
+		print ("Evaluation function for " + playerColor + " is " + str(self.evaluation(playerColor,oppColor)))
+		print ("Played pieces are " + str(self.played))
+		print ("Number of squares left is " + str(self.num_open))
 		return self.make_move(playerColor, oppColor)
 
 #sets all tiles along a given direction (Dir) from a given starting point (col and row) for a given distance
 # (dist) to be a given value ( player )
 	def flip_tiles(self, row, col, Dir, dist, player):
+
 		for i in range(dist):
 			self.board[row+ i*Dir[0]][col + i*Dir[1]] = player
 		return True
@@ -116,6 +169,50 @@ class Chan_Bruce:
 #returns the value of a square on the board
 	def get_square(self, row, col):
 		return self.board[row][col]
+
+
+	def save(self):
+		saved_val = self.deepcopy()
+		# Deep copies to have something to revert to
+		return saved_val
+
+	def restore(self,saved):
+		self = saved
+
+		# Restores board to the saved value
+
+	def result(self,action, playerColor,oppColor):
+		self.place_piece(action[1],action[2],playerColor,oppColor)
+
+
+
+	def max_value(this,playerColor,oppColor):
+		if(self.cutoff_test(depth)):
+			return self.evaluation(playerColor,oppColor)
+		v = -100
+		saved = self.save()
+		for a in self.actions(playerColor,oppColor):		# Watch syntax here
+			result(a,playerColor,oppColor)
+			v = max(v,this.min_value(playerColor,oppColor))
+			self.restore(saved)
+		return v
+
+	def min_value(this,playerColor,oppColor):
+		if(self.cutoff_test(depth)):
+			return self.evaluation(playerColor,oppColor)
+		v = 100
+		saved = self.save()
+		for a in self.actions(oppColor,playerColor):
+			result(a,oppColor,playerColor)
+			v = min(v,max_value(oppColor,playerColor))
+			self.restore(saved)
+		return v
+
+
+	def minimax_decision(this,playerColor,oppColor):
+		# I think this will be different
+
+
 
 #Search the game board for a legal move, and play the first one it finds
 	def make_move(self, playerColor, oppColor):
@@ -142,6 +239,8 @@ class Chan_Bruce:
 									legal = True
 									self.flip_tiles(row, col, Dir, i, playerColor)
 									break
+					self.played.append([row,col])
+					self.num_open = self.num_open - 1				
 					return (row,col)
 		return (-1,-1)
 			
