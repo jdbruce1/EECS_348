@@ -1,20 +1,19 @@
 import copy
+import os
 
 class Chan_Bruce:
 
 	def __init__(self):
 		self.board = [[' ']*8 for i in range(8)]
 		self.size = 8
-		self.occuipied = []
 		self.board[4][4] = 'W'
 		self.board[3][4] = 'B'
 		self.board[3][3] = 'W'
 		self.board[4][3] = 'B'
-		self.occuipied.extend(([4, 4], [3, 4], [3, 3], [4, 3]))
 		# a list of unit vectors (row, col)
 		self.directions = [ (-1,-1), (-1,0), (-1,1), (0,-1),(0,1),(1,-1),(1,0),(1,1)]
 		self.played = [[3,4],[3,3],[4,4],[4,3]]
-		self.depth_limit = 2
+		self.depth_limit = 4
 		self.num_open = 60
 		self.saved = []
 
@@ -69,7 +68,6 @@ class Chan_Bruce:
 			return False
 		
 		self.num_open = self.num_open - 1;
-		self.played.append([row,col])
 
 
 		if(player == opp):
@@ -102,6 +100,8 @@ class Chan_Bruce:
 						legal = True
 						self.flip_tiles(row, col, Dir, i, player)
 						break
+		self.played.append([row,col])
+		# print(self.played)
 
 		return legal
 
@@ -126,6 +126,46 @@ class Chan_Bruce:
 	# 	if(player_count < opponent_count):
 	# 		return -1
 
+	def tile_parity(self, player, opp):
+		opp_count = 0
+		player_count = 0
+
+		opp_corner_count = 0
+		player_corner_count = 0
+
+		for row in range(self.size):
+			for col in range(self.size):
+				if self.board[row][col] == opp:
+					opp_count = opp_count + 1
+				elif self.board[row][col] == player:
+					player_count = player_count + 1
+
+				if((row == 0 and col == 0) or (row == 0 and col == 7) or (row == 7 and col == 0) or (row == 7 and col ==7)):
+					if self.board[row][col] == opp:
+						opp_corner_count = opp_corner_count + 1
+					elif self.board[row][col] == player:
+						player_corner_count = player_corner_count + 1
+
+		if player_corner_count + opp_corner_count != 0:
+			corner_value = 100 * (player_corner_count - opp_corner_count) / (player_corner_count + opp_corner_count)
+		else:
+			corner_value = 0
+
+		parity_value = 100 * (player_count - opp_count) / (player_count + opp_count)
+		mobility_value = self.mobility(player, opp)
+
+		return (corner_value * 2 + parity_value / 4 + mobility_value / 4)
+
+
+	def mobility(self, player, opp):
+		player_move_count = len(self.actions(player, opp))
+		opp_move_count = len(self.actions(opp, player))
+
+		if (player_move_count + opp_move_count) != 0:
+			return 100 * (player_move_count - opp_move_count) / (player_move_count + opp_move_count)
+		else:
+			return 0
+
 	def increment(self,player_count,playerColor,oppColor,r,c,amt):
 		val = self.board[r][c]
 		if(val == playerColor):
@@ -136,17 +176,18 @@ class Chan_Bruce:
 		return player_count
 
 	def evaluation(self,playerColor,oppColor):
-		player_count = 0
-		for r in range(self.size):
-			for c in range(self.size):
-				if(r == 0 or r == 7 or c == 0 or c ==7):
-					if((r == 0 and c == 0) or (r == 0 and c == 7) or (r == 7 and c == 0) or (r == 7 and c ==7)):
-						player_count = self.increment(player_count,playerColor,oppColor,r,c,5)		# Corner = 5
-					else:
-						player_count = self.increment(player_count,playerColor,oppColor,r,c,5)
-				else:
-					player_count = self.increment(player_count,playerColor,oppColor,r,c,1)
-		return player_count
+		return self.tile_parity(playerColor, oppColor)
+		# player_count = 0
+		# for r in range(self.size):
+		# 	for c in range(self.size):
+		# 		if(r == 0 or r == 7 or c == 0 or c ==7):
+		# 			if((r == 0 and c == 0) or (r == 0 and c == 7) or (r == 7 and c == 0) or (r == 7 and c ==7)):
+		# 				player_count = self.increment(player_count,playerColor,oppColor,r,c,10)		# Corner = 10
+		# 			else:
+		# 				player_count = self.increment(player_count,playerColor,oppColor,r,c,2)
+		# 		else:
+		# 			player_count = self.increment(player_count,playerColor,oppColor,r,c,1)
+		# return player_count
 
 	def cutoff_test(self,depth):
 		if depth >= self.depth_limit:
@@ -175,9 +216,6 @@ class Chan_Bruce:
 		for i in range(dist):
 			self.board[row+ i*Dir[0]][col + i*Dir[1]] = player
 		return True
-	
-#returns the value of a square on the board
-	
 
 	def actions(self, playerColor, oppColor):
 		actions = []
@@ -188,39 +226,64 @@ class Chan_Bruce:
 		return actions
 
 		# Simple actions function. Greg was working on a more complicated one:
-		# def actions(self, player, opp):
-		# 	actions = []
-		# 	for square in self.occuipied:
-		# 		print(square)
-		# 		row = square[0]
-		# 		col = square[1]
+	# def actions(self, player, opp):
+	# 	start = os.times().elapsed
+	# 	actions = []
+	# 	checked = []
+	# 	for square in self.played:
+	# 		# print(square)
+	# 		row = square[0]
+	# 		col = square[1]
 
-		# 		for c in range(col - 1, col + 2):
-		# 			for r in range(row - 1, row + 2):
-		# 				if r >= 0 and c >= 0 and r < self.size and c < self.size:
-		# 					if self.board[r][c] == " " and self.islegal(row,col,player, opp):
-		# 						adjacentSquares.append([r, c])
-
-		# 	return actions
-
-
+	# 		for c in range(col - 1, col + 2):
+	# 			for r in range(row - 1, row + 2):
+	# 				if r == row and c == col:
+	# 					continue
+	# 				key = str(r) + "," + str(c)
+	# 				if r >= 0 and c >= 0 and r < self.size and c < self.size:
+	# 					if self.board[r][c] == " " and self.islegal(r,c,player,opp) and not key in checked:
+	# 						actions.append([r, c])
+	# 					checked.append(key)
+	# 	end = os.times().elapsed
+	# 	print(str(end - start))
+	# 	return actions
 
 	def get_square(self, row, col):
 		return self.board[row][col]
 
 
+	# def save(self):
+	# 	start = os.times().elapsed
+	# 	saved_val = copy.deepcopy(self)
+	# 	# Deep copies to have something to revert to
+	# 	self.saved.append(saved_val)
+	# 	end = os.times().elapsed
+	# 	print(str(end-start))
+
 	def save(self):
-		saved_val = copy.deepcopy(self)
+		# start = os.times().elapsed
+		saved_val = copy.deepcopy(self.board)
 		# Deep copies to have something to revert to
 		self.saved.append(saved_val)
+		# end = os.times().elapsed
+		# print(str(end-start))
 
 	def restore(self):
 		saved_val = self.saved.pop()
+		self.played.pop()
 		# print("This is the board that will be restored")
 		# saved_val.PrintBoard()
-		self.board = saved_val.board
+		self.board = saved_val
 		# print("Right after restoration")
 		# self.PrintBoard()
+
+	# def restore(self):
+	# 	saved_val = self.saved.pop()
+	# 	# print("This is the board that will be restored")
+	# 	# saved_val.PrintBoard()
+	# 	self.board = saved_val.board
+	# 	# print("Right after restoration")
+	# 	# self.PrintBoard()
 
 		# Restores board to the saved value
 
@@ -234,7 +297,7 @@ class Chan_Bruce:
 		if(self.cutoff_test(depth)):
 			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
-		v = -1000
+		v = -1000000
 		for a in self.actions(playerColor,oppColor):
 			self.save()
 			# print("Saved board is: ")
@@ -260,7 +323,7 @@ class Chan_Bruce:
 		if(self.cutoff_test(depth)):
 			# print("Evaluation value for this board is " + str(self.evaluation(playerColor,oppColor)))
 			return self.evaluation(playerColor,oppColor)
-		v = 1000
+		v = 1000000
 		for a in self.actions(oppColor,playerColor):
 			self.save()
 			# print("Saved board is: ")
@@ -284,18 +347,18 @@ class Chan_Bruce:
 
 	def make_move(self,playerColor,oppColor):
 		best_action = None
-		best_value = -1000
+		best_value = -1000000
 		list_of_actions = self.actions(playerColor,oppColor)
 		if not list_of_actions:
 			return (-1,-1)
-		v = self.max_value(playerColor,oppColor,-1000,1000,0)
+		v = self.max_value(playerColor,oppColor,-1000000,1000000,0)
 		# print("Optimal value of " + str(v)+ " decided on.")
 		self.PrintBoard()
 		for action in list_of_actions:
 			# print("Seeing if " + str(action) + " matches the value of " + str(v))
 			self.save()
 			self.result(action,playerColor,oppColor)
-			value = self.min_value(playerColor,oppColor,-1000,1000,1)
+			value = self.min_value(playerColor,oppColor,-1000000,1000000,1)
 			self.restore()
 			if value == v:
 				# print("The action " + str(action) + " matches the value of " + str(v) + " so that's what we'll play")
@@ -335,8 +398,7 @@ class Chan_Bruce:
 
 
 # cb = Chan_Bruce()
-
-# print(cb.minimax_decision('B','W'))
+# print(cb.actions('B', 'W'))
 # cb.PrintBoard()
 
 

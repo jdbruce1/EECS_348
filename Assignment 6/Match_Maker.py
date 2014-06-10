@@ -2,7 +2,7 @@ import sys, imp
 import string, random, time
 
 COLORS = ['B','W']
-TURN_TIME_LIMIT = 20		# seconds
+TURN_TIME_LIMIT = 15		# seconds
 CONSECUTIVE_PASS_LIMIT = 2
 PAUSE_BETWEEN_MOVES = False
 
@@ -207,6 +207,7 @@ def main():
 		# Get player's move and calculate time taken to respond
 		startTime = time.time()
 		move = players[curPlayerID].play_square(prevMove[0], prevMove[1], playerColor, oppColor)
+		print(move)
 		stopTime = time.time()
 		
 		# End game if players are stuck in a loop of playing (-1,-1)
